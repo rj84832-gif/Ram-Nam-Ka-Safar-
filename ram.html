@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>राम नाम जप</title>
+<style>
+body{font-family:Arial;text-align:center;background:#fff3e0;}
+#ramBtn{width:200px;height:200px;border-radius:50%;font-size:30px;background:orange;border:none;}
+.card{background:#fff;padding:12px;margin:10px auto;width:300px;border-radius:10px;}
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+<h3>🔐 App Lock</h3>
+<input type="password" id="pinInput" maxlength="4">
+<button onclick="checkPin()">Unlock</button>
+<p id="pinMsg"></p>
+</div>
+
+<h2>🙏 राम नाम जप 🙏</h2>
+<button id="ramBtn" onclick="ramClick()">राम राम</button>
+
+<div class="card">आज: <b id="todayCount">0</b></div>
+<div class="card">कुल: <b id="totalCount">0</b></div>
+
+<div class="card"><h3>📊 Monthly Report</h3><div id="monthReport"></div></div>
+<div class="card"><h3>📅 Yearly Report</h3><div id="yearReport"></div></div>
+
+<script>
+let today=new Date().toISOString().slice(0,10);
+let total=parseInt(localStorage.getItem("totalCount"))||0;
+let history=JSON.parse(localStorage.getItem("history"))||{};
+if(!history[today])history[today]=0;
+
+function ramClick(){
+ total++; history[today]++;
+ localStorage.setItem("totalCount",total);
+ localStorage.setItem("history",JSON.stringify(history));
+ update();
+}
+
+function update(){
+ document.getElementById("todayCount").innerText=history[today];
+ document.getElementById("totalCount").innerText=total;
+}
+
+function monthly(){
+ let m=new Date().toISOString().slice(0,7),t=0,h="";
+ for(let d in history){if(d.startsWith(m)){t+=history[d];h+=d+" : "+history[d]+"<br>";}}
+ document.getElementById("monthReport").innerHTML=h+"<b>Total: "+t+"</b>";
+}
+
+function yearly(){
+ let y=new Date().getFullYear(),m={},t=0,h="";
+ for(let d in history){
+  if(d.startsWith(y)){let mo=d.slice(0,7);m[mo]=(m[mo]||0)+history[d];t+=history[d];}
+ }
+ for(let k in m){h+=k+" : "+m[k]+"<br>";}
+ document.getElementById("yearReport").innerHTML=h+"<b>Total: "+t+"</b>";
+}
+
+let p=localStorage.getItem("appPin");
+if(!p){p=prompt("4 digit PIN set करें");localStorage.setItem("appPin",p);}
+function checkPin(){
+ if(document.getElementById("pinInput").value===p){
+  document.getElementById("lockScreen").style.display="none";
+ } else document.getElementById("pinMsg").innerText="गलत PIN";
+}
+
+update(); monthly(); yearly();
+</script>
+</body>
+</html>
